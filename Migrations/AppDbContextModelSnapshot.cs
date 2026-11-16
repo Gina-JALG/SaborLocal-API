@@ -122,6 +122,12 @@ namespace SaborLocal.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Comprobante")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ComprobanteUrl")
+                        .HasColumnType("text");
+
                     b.Property<string>("DireccionCliente")
                         .IsRequired()
                         .HasColumnType("text");
@@ -132,6 +138,9 @@ namespace SaborLocal.API.Migrations
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImagenComprobante")
+                        .HasColumnType("text");
 
                     b.Property<string>("MetodoPago")
                         .IsRequired()

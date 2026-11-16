@@ -12,8 +12,8 @@ using SaborLocal.API.Data;
 namespace SaborLocal.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261105013002_AddDetallesPedidoYCamposExtra")]
-    partial class AddDetallesPedidoYCamposExtra
+    [Migration("20261116074048_AgregarComprobanteDirecto")]
+    partial class AgregarComprobanteDirecto
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,18 @@ namespace SaborLocal.API.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Contrasena")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CorreoDuenio")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Direccion")
                         .IsRequired()
@@ -52,7 +64,15 @@ namespace SaborLocal.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("NombreDuenio")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TelefonoComercio")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -105,12 +125,25 @@ namespace SaborLocal.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Comprobante")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ComprobanteUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DireccionCliente")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Estado")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImagenComprobante")
+                        .HasColumnType("text");
 
                     b.Property<string>("MetodoPago")
                         .IsRequired()

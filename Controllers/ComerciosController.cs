@@ -16,12 +16,12 @@ namespace SaborLocal.API.Controllers
             _context = context;
         }
 
-        // GET: api/comercios (Los clientes solo ven los comercios APROBADOS)
+        // GET: api/comercios (ESTRICTO: Los clientes SOLO ven los comercios APROBADOS)
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Comercio>>> GetComerciosAprobados()
         {
             return await _context.Comercios
-                .Where(c => c.Estado == "APROBADO")
+                .Where(c => c.Estado != null && c.Estado.ToUpper() == "APROBADO")
                 .ToListAsync();
         }
 
@@ -46,7 +46,7 @@ namespace SaborLocal.API.Controllers
                 var nuevoComercio = new Comercio
                 {
                     NombreComercio = dto.NombreComercio,
-                    Categoria = string.IsNullOrEmpty(dto.Categoria) ? "Comida General" : dto.Categoria, // 👈 Categoría libre
+                    Categoria = string.IsNullOrEmpty(dto.Categoria) ? "Comida General" : dto.Categoria,
                     Direccion = dto.Direccion,
                     Telefono = dto.TelefonoComercio,
                     MetodosPago = string.IsNullOrEmpty(dto.MetodosPago) ? "Efectivo, Transferencia" : dto.MetodosPago,
@@ -119,7 +119,7 @@ namespace SaborLocal.API.Controllers
     public class RegistroRestauranteDto
     {
         public string NombreComercio { get; set; } = string.Empty;
-        public string Categoria { get; set; } = string.Empty; // 👈 Captura la categoría escrita por el dueño
+        public string Categoria { get; set; } = string.Empty; // 👈 Corregido el signo de dos puntos por el igual
         public string Direccion { get; set; } = string.Empty;
         public string TelefonoComercio { get; set; } = string.Empty;
         public string MetodosPago { get; set; } = string.Empty;

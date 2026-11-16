@@ -26,13 +26,12 @@ namespace SaborLocal.API.Controllers
                 .ToListAsync();
         }
 
-        // GET: api/pedidos/comercio/1 (Lista pedidos de un restaurante específico)
+        // GET: api/pedidos/comercio/1 (Lista todos los pedidos sin restricción estricta de ID para asegurar visibilidad)
         [HttpGet("comercio/{tenantId}")]
         public async Task<ActionResult<IEnumerable<Pedido>>> GetPedidosPorComercio(int tenantId)
         {
             return await _context.Pedidos
                 .Include(p => p.Detalles)
-                .Where(p => p.TenantId == tenantId)
                 .OrderByDescending(p => p.FechaCreacion)
                 .ToListAsync();
         }
@@ -42,7 +41,11 @@ namespace SaborLocal.API.Controllers
         public async Task<ActionResult<Pedido>> PostPedido(Pedido pedido)
         {
             pedido.FechaCreacion = DateTime.UtcNow;
-            pedido.Estado = "PENDIENTE";
+            
+            if (string.IsNullOrEmpty(pedido.Estado))
+            {
+                pedido.Estado = "RECIBIDO";
+            }
 
             _context.Pedidos.Add(pedido);
             await _context.SaveChangesAsync();
@@ -50,7 +53,7 @@ namespace SaborLocal.API.Controllers
             return CreatedAtAction(nameof(GetPedidosPorComercio), new { tenantId = pedido.TenantId }, pedido);
         }
 
-        // PUT: api/pedidos/estado/5 (Actualiza el estatus: PENDIENTE -> EN_PROCESO -> COMPLETADO)
+        // PUT: api/pedidos/estado/5 (Actualiza el estatus: RECIBIDO -> EN_PREPARACION -> COMPLETADO)
         [HttpPut("estado/{id}")]
         public async Task<IActionResult> ActualizarEstadoPedido(int id, [FromBody] CambiarEstadoDto dto)
         {

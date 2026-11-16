@@ -27,10 +27,18 @@ namespace SaborLocal.API.Controllers
         [HttpGet("comercio/{tenantId}")]
         public async Task<ActionResult<IEnumerable<Producto>>> GetProductosPorComercio(int tenantId)
         {
-            return await _context.Productos
+            // Validación para evitar errores 400 Bad Request si el ID recibido no es un número de comercio válido
+            if (tenantId <= 0)
+            {
+                return Ok(new List<Producto>());
+            }
+
+            var productos = await _context.Productos
                 .Where(p => p.TenantId == tenantId)
                 .OrderByDescending(p => p.Id)
                 .ToListAsync();
+
+            return Ok(productos);
         }
 
         // POST: api/productos (Agrega un nuevo platillo al menú)

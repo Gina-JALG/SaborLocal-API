@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,7 +20,7 @@ namespace SaborLocal.API.Models
         public string TelefonoCliente { get; set; } = string.Empty;
 
         [Required]
-        public string DireccionCliente { get; set; } = string.Empty; // 👈 Campo nuevo para la dirección
+        public string DireccionCliente { get; set; } = string.Empty;
 
         public string MetodoPago { get; set; } = "Efectivo";
 
@@ -28,10 +30,19 @@ namespace SaborLocal.API.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Total { get; set; }
 
-        // Estados adaptados al flujo Kanban: RECIBIDO, EN_PREPARACION, HACIA_DOMICILIO, COMPLETADO
         public string Estado { get; set; } = "RECIBIDO"; 
 
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+
+        // Campos de texto largo compatibles con PostgreSQL para guardar la imagen
+        [Column(TypeName = "text")]
+        public string? ComprobanteUrl { get; set; }
+
+        [Column(TypeName = "text")]
+        public string? Comprobante { get; set; }
+
+        [Column(TypeName = "text")]
+        public string? ImagenComprobante { get; set; }
 
         public List<DetallePedido> Detalles { get; set; } = new();
     }
