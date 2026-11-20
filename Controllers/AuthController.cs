@@ -34,19 +34,31 @@ namespace SaborLocalAPI.Controllers
                 string emailLimpio = model.Correo.ToLower().Trim();
                 CodigosTemp[emailLimpio] = codigo;
 
-                // Leemos la API Key de forma segura desde la configuración del proyecto
-                string apiKey = _configuration["BrevoApiKey"] ?? "";
-                if (string.IsNullOrEmpty(apiKey))
+                // Leemos la API Key y el correo remitente desde appsettings.json
+                string apiKey = _configuration["EmailSettings:ApiKey"] ?? _configuration["BrevoApiKey"] ?? "";
+                string senderEmail = _configuration["EmailSettings:SenderEmail"] ?? "982116537alopez@gmail.com";
+
+                if (string.IsNullOrEmpty(apiKey) || apiKey.Contains("TU_API_KEY"))
                 {
-                    return StatusCode(500, new { error = "La API Key de Brevo no está configurada en el servidor." });
+                    return StatusCode(500, new { error = "La API Key de Brevo no está configurada correctamente en appsettings.json." });
                 }
 
+                // Estructura del correo que se enviará alfanuméricamente al correo ingresado en el registro
                 var payload = new
                 {
-                    sender = new { name = "Sabor Local", email = "982116537alopez@gmail.com" },
+                    sender = new { name = "Sabor Local", email = senderEmail },
                     to = new[] { new { email = emailLimpio } },
-                    subject = $"Tu codigo de verificacion es {codigo}",
-                    htmlContent = $"<html><body><h3>Hola</h3><p>Tu codigo de verificacion de Sabor Local es: <b>{codigo}</b></p></body></html>"
+                    subject = $"Tu código de verificación de Sabor Local es {codigo}",
+                    htmlContent = $@"
+                        <div style='font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; max-width: 500px; margin: auto;'>
+                            <h2 style='color: #7c3aed; text-align: center;'>Sabor Local</h2>
+                            <p>Hola,</p>
+                            <p>Has solicitado registrarte en la plataforma. Utiliza el siguiente código de verificación de 6 dígitos:</p>
+                            <div style='text-align: center; margin: 30px 0;'>
+                                <span style='font-size: 32px; font-weight: bold; letter-spacing: 8px; background: #f1f5f9; padding: 12px 24px; border-radius: 8px; color: #0f172a;'>{codigo}</span>
+                            </div>
+                            <p style='color: #64748b; font-size: 12px; text-align: center;'>Si no solicitaste este código, puedes ignorar este mensaje.</p>
+                        </div>"
                 };
 
                 string jsonContent = JsonSerializer.Serialize(payload);
@@ -61,18 +73,20 @@ namespace SaborLocalAPI.Controllers
 
                     if (response.IsSuccessStatusCode)
                     {
-                        return Ok(new { mensaje = "Código enviado con éxito a tu correo." });
+                        return Ok(new { mensaje = $"Código enviado con éxito a {emailLimpio}." });
                     }
                     else
                     {
                         string errorResponse = await response.Content.ReadAsStringAsync();
-                        return StatusCode(500, new { error = "No se pudo enviar el correo: " + errorResponse });
+                        Console.WriteLine($"--- ERROR DE BREVO ---: {errorResponse}");
+                        return StatusCode(500, new { error = "Brevo rechazó el envío del correo: " + errorResponse });
                     }
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Error de servidor: " + ex.Message });
+                Console.WriteLine($"--- EXCEPCIÓN INTERNA ---: {ex.Message}");
+                return StatusCode(500, new { error = "Error de servidor al enviar correo: " + ex.Message });
             }
         }
 
